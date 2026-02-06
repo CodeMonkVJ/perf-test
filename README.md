@@ -22,6 +22,12 @@ Open:
 
 In Grafana, add Prometheus datasource URL: `http://prometheus:9090`.
 
+Import ready dashboard:
+
+1. Grafana -> `Dashboards` -> `New` -> `Import`
+2. Upload `monitoring/grafana-dashboard-vps-capacity.json`
+3. Select your Prometheus datasource and click `Import`
+
 ## 2) External load generator
 
 Install k6 on the external machine, then:
