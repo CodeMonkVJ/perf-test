@@ -38,7 +38,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
     ports:
-      - "8080:8080"
+      - "8180:8080"
 
   grafana:
     image: grafana/grafana:11.2.2

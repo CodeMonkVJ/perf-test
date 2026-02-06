@@ -18,7 +18,7 @@ Open:
 
 - Prometheus: `http://<home-server-ip>:9090`
 - Grafana: `http://<home-server-ip>:3300` (default `admin/admin`)
-- cAdvisor: `http://<home-server-ip>:8080`
+- cAdvisor: `http://<home-server-ip>:8180`
 
 In Grafana, add Prometheus datasource URL: `http://prometheus:9090`.
 
