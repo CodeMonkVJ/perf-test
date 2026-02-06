@@ -27,6 +27,9 @@ Import ready dashboard:
 1. Grafana -> `Dashboards` -> `New` -> `Import`
 2. Upload `monitoring/grafana-dashboard-vps-capacity.json`
 3. Select your Prometheus datasource and click `Import`
+4. After you send k6 metrics via Remote Write, use `k6 Test Run` variable in the dashboard to filter run graphs
+
+Prometheus is configured with Remote Write receiver enabled, so k6 can push run metrics directly.
 
 ## 2) External load generator
 
@@ -47,6 +50,9 @@ Tunable env vars:
 - `REQ_TIMEOUT` (default `5s`)
 - `COOKIE_HEADER` (optional, full cookie header string, e.g. `sessiondata=abc123; other=xyz`)
 - `SESSION_COOKIE` (optional shortcut for `sessiondata=<value>`)
+- `RUN_ID` (optional, tags all series as `test_run=<RUN_ID>`, default timestamp)
+- `PROM_RW_URL` (optional, if set, stream live k6 metrics to Prometheus; example `http://100.x.y.z:9090/api/v1/write`)
+- `K6_PROM_OUTPUT` (optional, default `experimental-prometheus-rw`; for older k6 use `prometheus-rw`)
 
 Example with cookie-based session:
 
@@ -56,6 +62,24 @@ BASE_URL=https://perftest.domain.com \
 TARGET_PATH=/api/secure-endpoint \
 COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
 ./run.sh
+```
+
+Example with Prometheus Remote Write enabled:
+
+```bash
+cd loadgen
+BASE_URL=https://perftest.domain.com \
+TARGET_PATH=/api/secure-endpoint \
+COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
+RUN_ID=baseline-01 \
+PROM_RW_URL=http://100.x.y.z:9090/api/v1/write \
+./run.sh
+```
+
+After the run, in Prometheus/Grafana Explore, search k6 metrics with:
+
+```promql
+{__name__=~"k6_.*", test_run="baseline-01"}
 ```
 
 ## 3) How to decide max supported users
