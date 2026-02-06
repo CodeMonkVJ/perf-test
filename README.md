@@ -82,6 +82,33 @@ After the run, in Prometheus/Grafana Explore, search k6 metrics with:
 {__name__=~"k6_.*", test_run="baseline-01"}
 ```
 
+Delete old k6 runs from Prometheus:
+
+1. Ensure monitoring stack is restarted with admin API enabled:
+
+```bash
+cd monitoring
+docker compose up -d
+```
+
+2. Delete one specific run id (example `baseline-01`):
+
+```bash
+curl -X POST -g 'http://<home-server-ip>:9090/api/v1/admin/tsdb/delete_series?match[]={__name__=~"k6_.*",test_run="baseline-01"}'
+```
+
+3. Or delete all k6 runs:
+
+```bash
+curl -X POST -g 'http://<home-server-ip>:9090/api/v1/admin/tsdb/delete_series?match[]={__name__=~"k6_.*"}'
+```
+
+4. Purge tombstones so space is reclaimed sooner:
+
+```bash
+curl -X POST 'http://<home-server-ip>:9090/api/v1/admin/tsdb/clean_tombstones'
+```
+
 ## 3) How to decide max supported users
 
 Treat the max stable point as the highest stage where all stay true:

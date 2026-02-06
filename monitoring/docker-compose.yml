@@ -9,6 +9,7 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=7d
       - --web.enable-remote-write-receiver
+      - --web.enable-admin-api
     ports:
       - "9090:9090"
     volumes:
