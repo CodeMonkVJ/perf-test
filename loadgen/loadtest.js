@@ -11,6 +11,9 @@ if (!baseUrl) {
   throw new Error('BASE_URL is required, e.g. https://your-vps-domain.com');
 }
 
+// Count only 2xx as expected responses; all other status codes are failures.
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 299 }));
+
 export const options = {
   discardResponseBodies: true,
   scenarios: {
@@ -50,6 +53,6 @@ export default function () {
   });
 
   check(res, {
-    'status is < 500': (r) => r.status < 500
+    'status is 2xx': (r) => r.status >= 200 && r.status < 300
   });
 }

@@ -64,6 +64,8 @@ COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
 ./run.sh
 ```
 
+Response success criteria: only HTTP `2xx` is treated as success; `3xx/4xx/5xx` are counted as failed requests.
+
 Example with Prometheus Remote Write enabled:
 
 ```bash
