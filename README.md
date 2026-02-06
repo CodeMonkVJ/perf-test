@@ -51,7 +51,7 @@ Tunable env vars:
 - `COOKIE_HEADER` (optional, full cookie header string, e.g. `sessiondata=abc123; other=xyz`)
 - `SESSION_COOKIE` (optional shortcut for `sessiondata=<value>`)
 - `RUN_ID` (optional, tags all series as `test_run=<RUN_ID>`, default timestamp)
-- `PROM_RW_URL` (optional, if set, stream live k6 metrics to Prometheus; example `http://100.x.y.z:9090/api/v1/write`)
+- `PROM_RW_URL` (optional, if set, stream live k6 metrics to Prometheus; exported as `K6_PROMETHEUS_RW_SERVER_URL`)
 - `K6_PROM_OUTPUT` (optional, default `experimental-prometheus-rw`; for older k6 use `prometheus-rw`)
 
 Example with cookie-based session:
