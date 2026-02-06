@@ -17,7 +17,7 @@ docker compose up -d
 Open:
 
 - Prometheus: `http://<home-server-ip>:9090`
-- Grafana: `http://<home-server-ip>:3000` (default `admin/admin`)
+- Grafana: `http://<home-server-ip>:3300` (default `admin/admin`)
 - cAdvisor: `http://<home-server-ip>:8080`
 
 In Grafana, add Prometheus datasource URL: `http://prometheus:9090`.
