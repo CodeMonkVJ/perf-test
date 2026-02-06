@@ -3,6 +3,9 @@ import { check } from 'k6';
 
 const baseUrl = __ENV.BASE_URL;
 const path = __ENV.TARGET_PATH || '/';
+const cookieHeader =
+  __ENV.COOKIE_HEADER ||
+  (__ENV.SESSION_COOKIE ? `sessiondata=${__ENV.SESSION_COOKIE}` : '');
 
 if (!baseUrl) {
   throw new Error('BASE_URL is required, e.g. https://your-vps-domain.com');
@@ -32,12 +35,18 @@ export const options = {
 };
 
 export default function () {
+  const headers = {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  };
+
+  if (cookieHeader) {
+    headers.Cookie = cookieHeader;
+  }
+
   const res = http.get(`${baseUrl}${path}`, {
     timeout: __ENV.REQ_TIMEOUT || '5s',
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    }
+    headers
   });
 
   check(res, {

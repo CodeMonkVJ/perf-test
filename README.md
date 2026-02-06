@@ -39,6 +39,18 @@ Tunable env vars:
 - `PRE_VUS` (default `100`)
 - `MAX_VUS` (default `2000`)
 - `REQ_TIMEOUT` (default `5s`)
+- `COOKIE_HEADER` (optional, full cookie header string, e.g. `sessiondata=abc123; other=xyz`)
+- `SESSION_COOKIE` (optional shortcut for `sessiondata=<value>`)
+
+Example with cookie-based session:
+
+```bash
+cd loadgen
+BASE_URL=https://perftest.domain.com \
+TARGET_PATH=/api/secure-endpoint \
+COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
+./run.sh
+```
 
 ## 3) How to decide max supported users
 
