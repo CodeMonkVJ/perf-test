@@ -33,55 +33,57 @@ Prometheus is configured with Remote Write receiver enabled, so k6 can push run 
 
 ## 2) External load generator
 
-Install k6 on the external machine, then:
+Install k6 on the external machine, then edit `loadgen/config.env` and run:
 
 ```bash
 cd loadgen
-BASE_URL=https://your-vps-domain.com TARGET_PATH=/health ./run.sh
-```
-
-Tunable env vars:
-
-- `START_RPS` (default `10`)
-- `STAGE1_RPS..STAGE4_RPS` (default `50,100,200,400`)
-- `STAGE1_DUR..STAGE4_DUR` (default `2m` each)
-- `PRE_VUS` (default `100`)
-- `MAX_VUS` (default `2000`)
-- `REQ_TIMEOUT` (default `5s`)
-- `COOKIE_HEADER` (optional, full cookie header string, e.g. `sessiondata=abc123; other=xyz`)
-- `SESSION_COOKIE` (optional shortcut for `sessiondata=<value>`)
-- `RUN_ID` (optional, tags all series as `test_run=<RUN_ID>`, default timestamp)
-- `PROM_RW_URL` (optional, if set, stream live k6 metrics to Prometheus; exported as `K6_PROMETHEUS_RW_SERVER_URL`)
-- `K6_PROM_OUTPUT` (optional, default `experimental-prometheus-rw`; for older k6 use `prometheus-rw`)
-
-Example with cookie-based session:
-
-```bash
-cd loadgen
-BASE_URL=https://perftest.domain.com \
-TARGET_PATH=/api/secure-endpoint \
-COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
 ./run.sh
 ```
+
+If needed, use a different config file:
+
+```bash
+cd loadgen
+./run.sh my-other-config.env
+```
+
+`config.env` keys you will edit most:
+
+- `BASE_URL`, `TARGET_PATH`
+- `REQ_METHOD`, `REQ_BODY`, `REQ_CONTENT_TYPE`, `EXTRA_HEADERS_JSON`, `COOKIE_HEADER`
+- `START_RPS`, `RAMP_STAGES`, `PRE_VUS`, `MAX_VUS`
+- `PROM_RW_URL`, `RUN_ID`
+
+`config.env` uses plain `KEY=value` lines (not shell scripting), so JSON and cookie strings can be written directly.
 
 Response success criteria: only HTTP `2xx` is treated as success; `3xx/4xx/5xx` are counted as failed requests.
 
-Example with Prometheus Remote Write enabled:
+Recommended request changes for realistic results:
 
-```bash
-cd loadgen
-BASE_URL=https://perftest.domain.com \
-TARGET_PATH=/api/secure-endpoint \
-COOKIE_HEADER='sessiondata=abc123; csrftoken=def456' \
-RUN_ID=baseline-01 \
-PROM_RW_URL=http://100.x.y.z:9090/api/v1/write \
-./run.sh
+- Use the same API endpoint real users hit, not just `/health`.
+- Match the real method and payload shape (`REQ_METHOD`, `REQ_BODY`, `REQ_CONTENT_TYPE`).
+- Include real auth/session headers or cookies (`COOKIE_HEADER` and/or `EXTRA_HEADERS_JSON`).
+- Keep `RAMP_STAGES` gradual to find the exact failure edge; default is:
+`50:2m,100:2m,150:2m,200:2m,250:2m,300:2m`
+
+Example config for an authenticated JSON POST:
+
+```ini
+BASE_URL=https://perftest.domain.com
+TARGET_PATH=/api/checkout
+REQ_METHOD=POST
+REQ_CONTENT_TYPE=application/json
+REQ_BODY={"cartId":"abc123","coupon":"NONE"}
+COOKIE_HEADER=sessiondata=abc123; csrftoken=def456
+EXTRA_HEADERS_JSON={"Accept":"application/json"}
+RAMP_STAGES=50:2m,100:2m,150:2m,200:2m,250:2m,300:2m
+PROM_RW_URL=http://100.x.y.z:9090/api/v1/write
 ```
 
 After the run, in Prometheus/Grafana Explore, search k6 metrics with:
 
 ```promql
-{__name__=~"k6_.*", test_run="baseline-01"}
+{__name__=~"k6_.*", test_run="<run-id>"}
 ```
 
 Delete old k6 runs from Prometheus:
